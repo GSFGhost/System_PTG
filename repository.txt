@@ -1,0 +1,8 @@
+<repository>
+  <addon:System_PTG>
+    <channel:release>
+      <version:3.0.0>
+      <file:example.com/My_AddOn.zip>
+    </channel>
+  </addon>
+</repository>
