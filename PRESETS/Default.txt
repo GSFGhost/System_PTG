@@ -1,0 +1,782 @@
+>>Saved preset settings for the Main GUI
+Standard settings for the PTG Main GUI.
+
+1.000000 0.000000 0.000000 1.000000
+1.000000 0.137255 0.000000 1.000000
+1.000000 0.494118 0.000000 1.000000
+1.000000 1.000000 0.000000 1.000000
+0.000000 0.784314 0.000000 1.000000
+0.000000 1.000000 1.000000 1.000000
+0.000000 0.494118 1.000000 1.000000
+0.000000 0.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 0.247059
+0.631373 0.000000 0.000000 1.000000
+0.784314 0.113725 0.000000 1.000000
+0.631373 0.341176 0.000000 1.000000
+0.631373 0.631373 0.000000 1.000000
+0.000000 0.647059 0.000000 1.000000
+0.000000 0.631373 0.631373 1.000000
+0.000000 0.341176 0.631373 1.000000
+0.000000 0.000000 0.631373 1.000000
+1.000000 1.000000 1.000000 0.694118
+1.000000 0.000000 0.000000 0.694118
+1.000000 0.137255 0.000000 0.694118
+1.000000 0.494118 0.000000 0.694118
+1.000000 1.000000 0.000000 0.694118
+0.486275 0.984314 0.000000 0.694118
+0.529412 0.803922 0.976471 0.694118
+0.113725 0.564706 1.000000 0.694118
+0.000000 0.000000 1.000000 0.694118
+1.000000 0.901961 0.976471 0.015686
+1.000000 0.839216 0.384314 1.000000
+0.439216 0.501961 0.564706 1.000000
+0.239216 0.349020 0.666667 1.000000
+1.000000 0.901961 0.729412 1.000000
+0.541176 0.349020 0.000000 1.000000
+0.431373 0.541176 0.239216 1.000000
+0.294118 0.000000 0.509804 1.000000
+1.000000 0.000000 0.501961 1.000000
+0.501961 0.000000 0.501961 1.000000
+0.701961 0.129412 0.129412 1.000000
+0.501961 0.000000 0.000000 1.000000
+0.000000 0.501961 0.231373 1.000000
+0.129412 0.266667 0.266667 1.000000
+0.000000 0.137255 0.329412 1.000000
+0.854902 0.647059 0.121569 1.000000
+0.101961 0.458824 0.764706 1.000000
+0.392157 0.349020 0.301961 1.000000
+0.541176 0.486275 0.419608 1.000000
+0.976471 0.976471 0.976471 1.000000
+0.831373 0.800000 0.768627 1.000000
+0.729412 0.721569 0.701961 1.000000
+0.654902 0.639216 0.627451 1.000000
+0.529412 0.513726 0.494118 1.000000
+0.411765 0.392157 0.376471 1.000000
+0.258824 0.247059 0.239216 1.000000
+0.078431 0.078431 0.070588 1.000000
+0.258824 0.247059 0.239216 0.694118
+0.803922 0.666667 0.486275 1.000000
+0.741176 0.584314 0.356863 1.000000
+0.729412 0.537255 0.258824 1.000000
+0.529412 0.392157 0.192157 1.000000
+0.454902 0.313726 0.109804 1.000000
+0.313726 0.239216 0.113725 1.000000
+0.419608 0.258824 0.149020 1.000000
+0.392157 0.192157 0.000000 1.000000
+0.584314 0.309804 0.039216 1.000000
+1.000000 0.000000 1.000000 0.000000
+
+>Setup
+1237
+8x8	Bricks	8x	brick8x8Data
+0
+ModTer/Grass
+38
+0
+0
+0
+0
+0
+-32
+-32
+288
+288
+0
+64
+0
+3
+5
+1
+>Features
+ModTer/TTdirt01
+61
+ModTer/rock
+49
+124
+128
+100
+0
+0
+0
+0
+0
+1
+20
+0
+0
+0
+0
+1
+1
+1
+230
+7
+5
+1
+40
+0
+16x Cube	Baseplates	Cube	brick16xCubeData
+
+ModTer/brickTOP
+45
+450
+0
+0
+0
+8x8	Bricks	8x	brick8x8Data
+0
+ModTer/Grass_03
+38
+350
+250
+ModTer/Old_Stone_Road
+61
+ModTer/dirt2
+49
+0
+0
+ModTer/TTdirt01
+60
+ModTer/brickTOP
+17
+0
+320
+1
+0
+0
+0
+0
+>Build-Loading
+0
+0
+0
+0
+100
+0
+7
+>Default Biome
+ModTer/water3
+24
+0
+Pine Tree	Special	Misc	brickPineTreeData
+
+38
+
+
+
+2x2 Bush	Special	Plants	brickBushData
+
+49
+1x1 Flowers	Special	Plants	brick1x1FlowersData
+
+38
+2x2 Flower	Special	Plants	brick2x2flowerData
+
+35
+2x2 Petals	Special	Plants	brick2x2petalsData
+
+42
+Tree Marshmallow	Special	Sylvanor's Trees	brickTreeTop11Data
+
+38
+Tree Grouped Wedge	Special	Sylvanor's Trees	brickTreeTop13bData
+
+38
+Tree Simple	Special	Sylvanor's Trees	brickTreeTop14Data
+
+38
+Tree Simple Fat	Special	Sylvanor's Trees	brickTreeTop14FatData
+
+38
+Tree Trapezoidal	Special	Sylvanor's Trees	brickTreeTop15Data
+
+38
+Tree Wedge	Special	Sylvanor's Trees	brickTreeTop16Data
+
+38
+Tree Classic	Special	Sylvanor's Trees	brickTreeTop17Data
+
+38
+
+
+
+
+
+
+2x2 Flower	Special	Plants	brick2x2flowerData
+
+0
+
+
+
+Stump	Special	Trees	TreeStumpBrickData
+
+61
+>Shore Biome
+ModTer/sand03
+54
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2x2 Bush	Special	Plants	brickBushData
+
+30
+
+
+
+
+
+
+
+
+
+Palm Tree	Special	Trees	TreePalmBrickData
+
+38
+1x1F	Plates	1x	brick1x1fData
+
+42
+1x2F	Plates	1x	brick1x2fData
+
+37
+
+
+
+
+
+
+
+
+
+Large Palm Tree	Special	Trees	TreePalmLargeBrickData
+
+38
+1x1F	Plates	1x	brick1x1fData
+
+45
+>Submarine Biome
+ModTer/sand2
+55
+Sea Grass	Special	Plants	brickseagrassData
+
+38
+
+
+
+
+
+
+
+
+
+
+
+
+1x1F	Plates	1x	brick1x1fData
+
+47
+Sea Grass	Special	Plants	brickseagrassData
+
+2
+
+
+
+
+
+
+Sea Grass	Special	Plants	brickseagrassData
+
+38
+1x2F	Plates	1x	brick1x2fData
+
+49
+Sea Grass	Special	Plants	brickseagrassData
+
+42
+Sea Grass	Special	Plants	brickseagrassData
+
+51
+8x Cube	Baseplates	Cube	brick4xCubeData
+
+49
+1x1F	Plates	1x	brick1x1fData
+
+45
+Sea Grass	Special	Plants	brickseagrassData
+
+35
+
+
+
+Sea Grass	Special	Plants	brickseagrassData
+
+47
+>Custom Biome A
+ModTer/snow
+45
+ModTer/Port_of_Taganrog
+25
+2
+2
+Pine Tree	Special	Misc	brickPineTreeData
+
+45
+
+
+
+
+
+
+
+
+
+
+
+
+Tree Base 1	Special	Sylvanor's Trees	brickTree1Data
+
+61
+Tree Base 3	Special	Sylvanor's Trees	brickTree3Data
+
+61
+
+
+
+
+
+
+Pine_Tree	Special	Trees	TreePineBrickData
+
+47
+
+
+
+
+
+
+
+
+
+1x1 Flowers	Special	Plants	brick1x1FlowersData
+
+38
+
+
+
+
+
+
+
+
+
+
+
+
+>Custom Biome B
+ModTer/rock
+49
+ModTer/lava5
+20
+1.5
+1
+
+
+
+
+
+
+
+
+
+
+
+
+2x2 Bush	Special	Plants	brickBushData
+
+61
+
+
+
+
+
+
+
+
+
+
+
+
+Tree Base 3	Special	Sylvanor's Trees	brickTree3Data
+
+61
+
+
+
+
+
+
+
+
+
+2x2	Bricks	2x	brick2x2Data
+
+49
+
+
+
+
+
+
+Tree Base 1	Special	Sylvanor's Trees	brickTree1Data
+
+61
+
+
+
+>Custom Biome C
+ModTer/whitesand
+30
+ModTer/whitesand
+23
+0.25
+3
+2x2 Bush	Special	Plants	brickBushData
+
+30
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Palm Tree	Special	Trees	TreePalmBrickData
+
+38
+
+
+
+
+
+
+
+
+
+
+
+
+Large Palm Tree	Special	Trees	TreePalmLargeBrickData
+
+38
+1x1 Stem	Special	Plants	brick1x1StemData
+
+38
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>Cave Bottom Biome
+ModTer/rock
+50
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2x2x5	Bricks	5x Height	brick2x2x5Data
+
+49
+2x2x3	Bricks	3x Height	brick2x2x3Data
+
+49
+
+
+
+Sea Grass Inverted	Special	Plants	brickseagrassInvData
+
+38
+2x2	Bricks	2x	brick2x2Data
+
+49
+
+
+
+
+
+
+1x1x5	Bricks	5x Height	brick1x1x5Data
+
+47
+
+
+
+
+
+
+
+
+
+
+
+
+Sea Grass Inverted	Special	Plants	brickseagrassInvData
+
+38
+>Cave Top Biome
+ModTer/rock
+49
+
+
+
+
+
+
+
+
+
+
+
+
+2x2x3	Bricks	3x Height	brick2x2x3Data
+
+48
+
+
+
+1x1	Bricks	1x	brick1x1Data
+
+47
+
+
+
+
+
+
+
+
+
+
+
+
+2x2x5	Bricks	5x Height	brick2x2x5Data
+
+48
+
+
+
+1x1x5	Bricks	5x Height	brick1x1x5Data
+
+48
+
+
+
+
+
+
+
+
+
+
+
+
+>Mountain Biome
+ModTer/rockface
+51
+ModTer/snow
+45
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1x1 Stem	Special	Plants	brick1x1StemData
+
+51
+
+
+
+
+
+
+
+
+
+Tree Pine	Special	Sylvanor's Trees	brickTreeTop12Data
+
+38
+1x1F	Plates	1x	brick1x1fData
+
+49
+
+
+
+Pine_Tree	Special	Trees	TreePineBrickData
+
+38
+
+
+
+
+
+
+Pine Tree	Special	Misc	brickPineTreeData
+
+38
+
+
+
+>Advanced
+1
+2
+50
+12
+57
+58
+59
+1
+1
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+30
+40
+30
+20
+20
+20
+30
+25
+256
+2
+64
+1
+16
+0.09375
+256
+1
+128
+0.5
+128
+1
+64
+1
+16
+0.25
+256
+8
+256
+2
+256
+2
+256
+2
+128
+4
+128
+2
+32
+1
+128
+1
+32
+0.5
+0
+0
+0
+0
+0
+0
+0
+0
+>Mass Biome Detail List
+>>Default	0
+>>Shore	0
+>>SubMarine	0
+>>CustomA	0
+>>CustomB	0
+>>CustomC	0
+>>CaveTop	0
+>>CaveBottom	0
+>>Mountains	0
+>End

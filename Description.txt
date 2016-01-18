@@ -1,0 +1,3 @@
+Title: Procedural Terrain Generator
+Author: [GSF]Ghost
+A versatile, chunk-based brick terrain generator. Made by [GSF]Ghost / Iso7 (ID: 3195)

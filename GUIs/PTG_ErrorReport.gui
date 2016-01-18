@@ -1,0 +1,194 @@
+//--- OBJECT WRITE BEGIN ---
+new GuiControl(PTG_ErrorReport) {
+   profile = "GuiDefaultProfile";
+   horizSizing = "right";
+   vertSizing = "bottom";
+   position = "0 0";
+   extent = "1024 768";
+   minExtent = "8 2";
+   enabled = "1";
+   visible = "1";
+   clipToParent = "1";
+
+   new GuiWindowCtrl(PTG_ErrRprt_Wndw) {
+      profile = "GuiWindowProfile";
+      horizSizing = "center";
+      vertSizing = "center";
+      position = "337 224";
+      extent = "350 320";
+      minExtent = "8 2";
+      enabled = "1";
+      visible = "1";
+      clipToParent = "1";
+      command = "Canvas.PopDialog(PTG_ErrorReport);";
+      accelerator = "escape";
+      text = "PTG: Preset Error Report";
+      maxLength = "255";
+      resizeWidth = "0";
+      resizeHeight = "0";
+      canMove = "1";
+      canClose = "1";
+      canMinimize = "0";
+      canMaximize = "0";
+      minSize = "50 50";
+      closeCommand = "Canvas.PopDialog(PTG_ErrorReport);";
+
+      new GuiBitmapCtrl() {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "342 290";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         bitmap = "./errorrprtbg";
+         wrap = "0";
+         lockAspectRatio = "0";
+         alignLeft = "0";
+         alignTop = "0";
+         overflowImage = "0";
+         keepCached = "0";
+         mColor = "255 255 255 255";
+         mMultiply = "0";
+      };
+      new GuiSwatchCtrl() {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "342 290";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         color = "255 255 255 0";
+
+         new GuiCheckBoxCtrl(PTG_ErrRprt_ChkAvoidMsg) {
+            profile = "GuiCheckBoxProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "4 259";
+            extent = "202 24";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            text = "Don\'t show error report for presets";
+            groupNum = "-1";
+            buttonType = "ToggleButton";
+         };
+         new GuiBitmapCtrl() {
+            profile = "GuiDefaultProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "4 4";
+            extent = "64 64";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            bitmap = "./checkmarkerror";
+            wrap = "0";
+            lockAspectRatio = "1";
+            alignLeft = "0";
+            alignTop = "0";
+            overflowImage = "0";
+            keepCached = "0";
+            mColor = "255 255 255 255";
+            mMultiply = "0";
+         };
+         new GuiMLTextCtrl() {
+            profile = "GuiMLTextProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "80 8";
+            extent = "256 84";
+            minExtent = "256 14";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            lineSpacing = "2";
+            allowColorChars = "0";
+            maxChars = "255";
+            text = "<font:verdana bold:14>Preset settings were loaded successfully, but some bricks and / or prints couldn\'t be loaded because they don\'t exist on the server.<br><br>Full error list (by UI name):";
+            maxBitmapHeight = "-1";
+            selectable = "1";
+            autoResize = "1";
+         };
+         new GuiBitmapButtonCtrl() {
+            profile = "BlockButtonProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "210 253";
+            extent = "128 32";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            command = "Canvas.PopDialog(PTG_ErrorReport);";
+            accelerator = "enter";
+            text = "Okay";
+            groupNum = "-1";
+            buttonType = "PushButton";
+            bitmap = "./button1b";
+            lockAspectRatio = "0";
+            alignLeft = "0";
+            alignTop = "0";
+            overflowImage = "0";
+            mKeepCached = "0";
+            mColor = "255 255 255 255";
+         };
+         new GuiSwatchCtrl() {
+            profile = "GuiDefaultProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "6 102";
+            extent = "330 144";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            color = "244 244 244 0";
+
+            new GuiScrollCtrl() {
+               profile = "ImpactScrollProfile";
+               horizSizing = "right";
+               vertSizing = "bottom";
+               position = "0 0";
+               extent = "330 144";
+               minExtent = "8 2";
+               enabled = "1";
+               visible = "1";
+               clipToParent = "1";
+               willFirstRespond = "0";
+               hScrollBar = "alwaysOff";
+               vScrollBar = "alwaysOn";
+               constantThumbHeight = "0";
+               childMargin = "0 0";
+               rowHeight = "40";
+               columnWidth = "30";
+
+               new GuiTextListCtrl(PTG_ErrRprt_TxtLst) {
+                  profile = "GuiTextListProfile";
+                  horizSizing = "right";
+                  vertSizing = "bottom";
+                  position = "0 0";
+                  extent = "319 2";
+                  minExtent = "8 2";
+                  enabled = "1";
+                  visible = "1";
+                  clipToParent = "1";
+                  enumerate = "0";
+                  resizeCell = "1";
+                  columns = "0";
+                  fitParentWidth = "1";
+                  clipColumnText = "0";
+               };
+            };
+         };
+      };
+   };
+};
+//--- OBJECT WRITE END ---

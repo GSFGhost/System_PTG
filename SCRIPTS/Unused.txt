@@ -1,0 +1,1022 @@
+//
+function PTG_Queue_Add(%db,%pos,%col,%colFX,%shpFX,%ang,%pri,%cl,%BG,%Chunk,%BrType,%BrMod)
+{
+	$PTGqueue.add(%brTmp = new SimObject());
+	%brTmp.brData = %db TAB %pos TAB %col TAB %colFX TAB %shpFX TAB %ang TAB %pri TAB %cl TAB %BG TAB %Chunk TAB %BrType TAB %BrMod;
+	
+	if(!$PTGqueue.inProgress) PTG_Queue_GenStart();
+}
+
+//////////////////////////////////////////////////
+
+//
+function PTG_Queue_GenStart()
+{
+	if($PTGqueue.getCount() > 0)
+	{
+		$PTGqueue.inProgress = true;
+		%brTmp = $PTGqueue.getObject(0);
+		%brData = $PTGqueue.getObject(0).brData;
+	
+		%brick = PTG_Chunk_PlantBrick(getField(%brData,0), getField(%brData,1), getField(%brData,2), getField(%brData,3), getField(%brData,4), 
+			getField(%brData,5), getField(%brData,6), getField(%brData,7), getField(%brData,8), getField(%brData,9), getField(%brData,10), getField(%brData,11));
+
+		%brTmp.delete();		
+		schedule(mClamp($PTG.delay_subFuncMS,1,500), 0, PTG_Queue_GenStart);
+	}
+	else
+		$PTGqueue.inProgress = false;
+}
+
+
+//////////////////////////////////////////////////
+
+//
+$PTGqueue = new SimGroup(PTG_QueueSO)
+{
+	inProgress = false;
+};
+
+	
+//////////////////////////////////////////////////
+
+
+//datablock StaticShapeData(PTGBoundsData)
+//{
+//	shapeFile = "Add-Ons/System_PTG/SHAPES/PTG_Bounds.dts";
+	//location
+	//rotation
+	//scale
+//};
+//datablock TSShapeConstructor(PTG_BoundsDts)
+//{
+ //  baseShape = "Add-Ons/System_PTG/SHAPES/PTG_Bounds.dts";
+//};
+
+//%shape = new StaticShape()
+//{
+//  datablock = PTGBoundsData;
+//  position = "0 0 0";
+//  client = %client;
+//  scale = "1 1 1";
+//};
+//missionCleanup.add(%shape);
+
+
+//////////////////////////////////////////////////
+
+//If Is Integer / Number In General (-2,-1,0,1,2, etc.)
+function isInt(%value)
+{
+	if(mFloor(%value) $= %value)
+		return true;
+	else
+		return false;
+}
+
+//If Non-Zero Integer (-3,-2,-1,1,2,3, etc.)
+function isValInt(%value)
+{
+	if(mFloor(%value) $= %value && %value != 0)
+		return true;
+	else
+		return false;
+}
+
+//Counting Numbers (1,2,3,4,5, etc.)
+function isCntNum(%value)
+{
+	if(mFloor(%value) $= %value && %value > 0)
+		return true;
+	else
+		return false;
+}
+
+//Whole / Natural Numbers (0,1,2,3,4, etc.)
+function isWhlNum(%value)
+{
+	if(mFloor(%value) $= %value && %value > -1)
+		return true;
+	else
+		return false;
+}
+
+
+//IsNum (integers, floats, etc.)
+//isNegNum
+//isNegInt
+//isBool
+//isStr
+//minClamp / maxClamp -> getMin and getMax
+
+
+function test(%wndw,%replace)
+{
+	for(%c = 0; %c < %wndw.getCount(); %c++)
+	{
+		%objA = %wndw.getObject(%c);
+		
+		if(strStr(%objA.getName(),"BioDef") != -1)
+		{
+			%objA.setName(strReplace(%objA.getName(),"BioDef",%replace));
+		}
+		
+		for(%d = 0; %d < %objA.getCount(); %d++)
+		{
+			%objB = %objA.getObject(%d);
+			
+			if(strStr(%objB.getName(),"BioDef") != -1)
+			{
+				%objB.setName(strReplace(%objB.getName(),"BioDef",%replace));
+			}
+			if(%objB.command !$= "" && strStr(%objB.command,"BioDef") != -1)
+			{
+				%objB.command = strReplace(%objB.command,"BioDef",%replace);
+			}
+			
+			for(%e = 0; %e < %objB.getCount(); %e++)
+			{
+				%objC = %objB.getObject(%e);
+				
+				if(strStr(%objC.getName(),"BioDef") != -1)
+				{
+					%objC.setName(strReplace(%objC.getName(),"BioDef",%replace));
+				}
+				if(%objC.command !$= "" && strStr(%objC.command,"BioDef") != -1)
+				{
+					%objC.command = strReplace(%objC.command,"BioDef",%replace);
+				}
+			}
+		}
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function PTG_Chunk_Gen_Caves_SkyLands(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY)
+{
+	%BrH_init = $StrArrayHV_Terrain[%BrPosX,%BrPosY];
+	%BrH_FIa = $StrArrayHV_SkyLands[%BrPosX,%BrPosY];
+	%BrH_cf = $StrArrayHV_Mountains[%BrPosX,%BrPosY];
+	%BrH_act = %BrH_init - $PTGm.terHLevel;
+	%CaveH_btm = $StrArrayHV_CavesA[%BrPosX,%BrPosY];
+	%CaveH_top = $StrArrayHV_CavesB[%BrPosX,%BrPosY];
+	
+	//////////////////////////////////////////////////
+	
+	if(%BrH_act > $PTGm.skyLndsSecZ)
+	{
+		%BrH_FIa_top = ($PTGm.terHLevel + (%BrH_act - $PTGm.skyLndsSecZ)) + %BrH_FIa;
+		%BrH_FIa_btm = ($PTGm.terHLevel - ((%BrH_act - $PTGm.skyLndsSecZ) * 2)) + %BrH_FIa;
+		%BrH_FIa_top = mFloor(%BrH_FIa_top / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%BrH_FIa_btm = mFloor(%BrH_FIa_btm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		
+		%BrH_FIa_L = $StrArrayHV_SkyLands[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_FIa_R = $StrArrayHV_SkyLands[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_FIa_D = $StrArrayHV_SkyLands[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%BrH_FIa_U = $StrArrayHV_SkyLands[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		%BrH_Ter_L = $StrArrayHV_Mountains[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_Ter_R = $StrArrayHV_Mountains[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_Ter_D = $StrArrayHV_Mountains[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%BrH_Ter_U = $StrArrayHV_Mountains[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		%FI_A_Lm = ($PTGm.terHLevel + ((%BrH_Ter_L - $PTGm.skyLndsSecZ) - $PTGm.terHLevel)) + %BrH_FIa_L;
+		%FI_A_Rm = ($PTGm.terHLevel + ((%BrH_Ter_R - $PTGm.skyLndsSecZ) - $PTGm.terHLevel)) + %BrH_FIa_R;
+		%FI_A_Dm = ($PTGm.terHLevel + ((%BrH_Ter_D - $PTGm.skyLndsSecZ) - $PTGm.terHLevel)) + %BrH_FIa_D;
+		%FI_A_Um = ($PTGm.terHLevel + ((%BrH_Ter_U - $PTGm.skyLndsSecZ) - $PTGm.terHLevel)) + %BrH_FIa_U;
+		
+		%FI_A_Lm = mFloor(%FI_A_Lm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Rm = mFloor(%FI_A_Rm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Dm = mFloor(%FI_A_Dm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Um = mFloor(%FI_A_Um / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+
+		if(%BrH_FIa_L <= 0) %FI_A_Lm = %BrH_FIa_top;
+		if(%BrH_FIa_R <= 0) %FI_A_Rm = %BrH_FIa_top;
+		if(%BrH_FIa_D <= 0) %FI_A_Dm = %BrH_FIa_top;
+		if(%BrH_FIa_U <= 0) %FI_A_Um = %BrH_FIa_top;
+
+		%FI_A_LmB = ($PTGm.terHLevel - (((%BrH_Ter_L - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_L;
+		%FI_A_RmB = ($PTGm.terHLevel - (((%BrH_Ter_R - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_R;
+		%FI_A_DmB = ($PTGm.terHLevel - (((%BrH_Ter_D - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_D;
+		%FI_A_UmB = ($PTGm.terHLevel - (((%BrH_Ter_U - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_U;
+		
+		%FI_A_LmB = mFloor(%FI_A_LmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_RmB = mFloor(%FI_A_RmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_DmB = mFloor(%FI_A_DmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_UmB = mFloor(%FI_A_UmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		
+		if(%BrH_FIa_L <= 0) %FI_A_LmB = %BrH_FIa_btm;
+		if(%BrH_FIa_R <= 0) %FI_A_RmB = %BrH_FIa_btm;
+		if(%BrH_FIa_D <= 0) %FI_A_DmB = %BrH_FIa_btm;
+		if(%BrH_FIa_U <= 0) %FI_A_UmB = %BrH_FIa_btm;
+		
+		%CaveH_btm_L = $StrArrayHV_CavesA[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_btm_R = $StrArrayHV_CavesA[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_btm_D = $StrArrayHV_CavesA[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%CaveH_btm_U = $StrArrayHV_CavesA[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		if(%CaveH_btm_L > %FI_A_Lm || %CaveH_btm_L <= 0) %CaveH_btm_L = %FI_A_Lm;
+		if(%CaveH_btm_R > %FI_A_Rm || %CaveH_btm_R <= 0) %CaveH_btm_R = %FI_A_Rm;
+		if(%CaveH_btm_D > %FI_A_Dm || %CaveH_btm_D <= 0) %CaveH_btm_D = %FI_A_Dm;
+		if(%CaveH_btm_U > %FI_A_Um || %CaveH_btm_U <= 0) %CaveH_btm_U = %FI_A_Um;
+		
+		%CaveH_top_L = $StrArrayHV_CavesB[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_top_R = $StrArrayHV_CavesB[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_top_D = $StrArrayHV_CavesB[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%CaveH_top_U = $StrArrayHV_CavesB[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		%MinAdjFIa_top = getMin(%FI_A_Lm, getMin(%FI_A_Rm, getMin(%FI_A_Dm,%FI_A_Um)));
+		%MaxAdjFIa_btm = getMax(%FI_A_LmB, getMax(%FI_A_RmB, getMax(%FI_A_DmB,%FI_A_UmB)));
+		%MaxAdjCave_top = getMax(%CaveH_top_L, getMax(%CaveH_top_R, getMax(%CaveH_top_D,%CaveH_top_U))); //tempFMaxH since using getMax (fix others)		
+		%MinAdjCave_btm = getMin(%CaveH_btm_L, getMin(%CaveH_btm_R, getMin(%CaveH_btm_D,%CaveH_btm_U)));
+		%adjFIaCut = %BrH_FIa_L <= 0 || %BrH_FIa_R <= 0 || %BrH_FIa_D <= 0 || %BrH_FIa_U <= 0;
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		if(%CaveH_top > 0 && (%minAdjFIa_top - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize) > (%maxAdjFIa_btm + $PTGm.brTer_FillXYZSize) && !%adjFIaCut)
+		{
+			%BrZhSize = $PTGm.brTer_Zsize / 2;
+			%genTop = false;
+			%genBtm = false;
+			
+			//Top
+			if((%CaveH_top + $PTGm.brTer_Zsize) <= (%BrH_FIa_top - $PTGm.brTer_Zsize) && %CaveH_top >= %BrH_FIa_btm)
+			{
+				//Top Cave Brick
+				%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %CaveH_top+%BrZhSize;
+				PTG_Chunk_PlantBrick($PTGm.brTer_DB,%pos,$PTGbio.Bio_CaveTop_TerCol,0,0,0,$PTGbio.Bio_CaveTop_TerPri,%cl,%BG,%Chunk,"TerrainBr","");
+				%genTop = true;
+				
+				//Top Gap-Fill
+				%caveTerCutTop = ((%CaveH_top_L + $PTGm.brTer_Zsize) > %FI_A_Lm) || ((%CaveH_top_R + $PTGm.brTer_Zsize) > %FI_A_Rm) || ((%CaveH_top_D + $PTGm.brTer_Zsize) > %FI_A_Dm) || ((%CaveH_top_U + $PTGm.brTer_Zsize) > %FI_A_Um);
+				%startPos = (%CaveH_top + $PTGm.brTer_Zsize);
+				%endPos = (%BrH_FIa_top - $PTGm.brTer_Zsize + 0.1);
+
+				if(!%caveTerCutTop)
+				{
+					%temp =  %MaxAdjCave_top + $PTGm.brTer_Zsize + $PTGm.brTer_FillXYZSize;
+					%tempB = %minAdjFIa_top - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize;
+					
+					if(!%adjFIaCut)
+					{
+						if(%temp <= %tempB)
+						{
+							if(%CaveH_top >= %BrH_FIa_btm && %startPos < %maxAdjFIa_btm && (%CaveH_top_L < %FI_A_LmB || %CaveH_top_R < %FI_A_RmB || %CaveH_top_D < %FI_A_DmB || %CaveH_top_U < %FI_A_UmB))
+							{
+								%tempC = getMax(%maxAdjFIa_btm,%MaxAdjCave_top) + $PTGm.brTer_FillXYZSize;
+								
+								if(%tempC <= %tempB)
+									PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %tempC SPC "CubeFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,"<","Disabled","TerrainBr");
+							}
+							else if((%CaveH_top + $PTGm.brTer_Zsize) < (%MaxAdjCave_top - 0.1)) //prevent unnecessary fill-bricks
+								PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %temp SPC "CubeFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,"<","Disabled","TerrainBr");
+						}
+						else
+							PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,"<=","Disabled","TerrainBr");
+					}
+				}
+				
+				else
+					PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,"<=","Disabled","TerrainBr");
+			}
+
+			//////////////////////////////////////////////////
+
+			//Bottom
+			if(%CaveH_btm <= (%BrH_FIa_top - $PTGm.brTer_Zsize) && %CaveH_btm > %BrH_FIa_btm)
+			{
+				%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %CaveH_btm-%BrZhSize;
+				PTG_Chunk_PlantBrick($PTGm.brTer_DB,%pos,$PTGbio.Bio_CaveBtm_TerCol,0,0,0,$PTGbio.Bio_CaveBtm_TerPri,%cl,%BG,%Chunk,"TerrainBr","");
+				%genBtm = true;
+				
+				%caveTerCutBtm = ((%CaveH_btm_L - $PTGm.brTer_Zsize) < %FI_A_LmB) || ((%CaveH_btm_R - $PTGm.brTer_Zsize) < %FI_A_RmB) || ((%CaveH_btm_D - $PTGm.brTer_Zsize) < %FI_A_DmB) || ((%CaveH_btm_U - $PTGm.brTer_Zsize) < %FI_A_UmB);
+				%startPos = (%CaveH_btm - $PTGm.brTer_Zsize);
+				%endPos = %BrH_FIa_btm; // - 0.1 ?????
+
+				if(!%caveTerCutBtm)
+				{
+					%temp =  %MinAdjCave_btm - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize;
+					%tempB = %MaxAdjFIa_btm + $PTGm.brTer_FillXYZSize;
+					
+					if(!%adjFIaCut)
+					{
+						if(%temp >= %tempB)
+						{
+							if((%CaveH_btm - $PTGm.brTer_Zsize) > (%MinAdjCave_btm + 0.1)) //prevent unnecessary fill-bricks
+								PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %temp SPC "CubeFill",$PTGbio.Bio_CaveBtm_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveBtm_TerPri,">","Disabled","TerrainBr");
+						}
+						else
+						{
+							//if(%CaveH_top > %BrH_FIa_btm)
+							//	PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,">=","Disabled","TerrainBr");
+							//else
+								PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,">=","Disabled","TerrainBr");
+						}
+					}
+				}
+				
+				else
+					PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill",$PTGbio.Bio_CaveTop_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveTop_TerPri,">=","Disabled","TerrainBr");
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+			
+			if(%genTop && %genBtm && ((%CaveH_top_L == 0) || (%CaveH_top_R == 0) || (%CaveH_top_D == 0) || (%CaveH_top_U == 0)))
+				PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%CaveH_btm SPC (%CaveH_top + 0.1) SPC "PlateFill",$PTGbio.Bio_CaveBtm_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveBtm_TerPri,"<=","Disabled","TerrainBr");
+		}
+	}
+
+	//////////////////////////////////////////////////
+	
+	if((%BrPosX += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+	{
+		%BrPosX = $PTGm.brTer_XYsize / 2;
+		
+		if((%BrPosY += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+		{
+			PTG_Chunk_Gen_Relay(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,"FltIslds",%BG);
+			return;
+		}
+	}
+	
+	scheduleNoQuota(mClamp($PTG.delay_brGenRmvMS,0,50),0,PTG_Chunk_Gen_Caves_SkyLands,%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function PTG_Chunk_Gen_Details_SkyLands(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY,%ang)
+{
+	%BrH_build = getWord($StrArrayData_Builds,0);
+	%relGrid = getWord($StrArrayData_Builds,2);
+	%relGridHSz = %relGrid / 2;
+	%bnds_build = getField($StrArrayData_Builds,1);
+	%buildName = getField($StrArrayData_Builds,2);
+	%layerName = getField($StrArrayData_Builds,4);
+	%flatArPass = ($PTGm.enabBuildLoad || $PTGm.allowFlatAreas) && %layerName $= "Terrain";
+	
+	%ChPosX_rel = mFloor(%ChPosX / %relGrid) * %relGrid;
+	%ChPosY_rel = mFloor(%ChPosY / %relGrid) * %relGrid;
+	%ChPosX_rem = %ChPosX_rel + %relGridHSz;
+	%ChPosY_rem = %ChPosY_rel + %relGridHSz;
+	%BrXHhSize = $PTGm.brTer_XYsize / 2;
+	%str = "|(){}[]<>\"\'\\/~`!@#$%^&*_+=,?:;"; //evals in this file don't require same level of security as in Server.cs (be careful who you make super admin however)
+	
+	//%Section_SkyLands_act = $PTGm.skyLndsSecZ + $PTGm.terHLevel;
+	//%Section_SkyLands_nom = $PTGm.skyLndsSecZ;
+	%MinBrZSnap = $PTGm.brTer_Zsize; //$PTGm.brTer_FillXYZSize + $PTGm.brTer_Zsize; //%MinBrZSnap = getWord($PTGMAIN,7) / 2;
+	
+	//Plate-Capping
+	if($PTGm.enabPlateCap) 
+		%plateOff = 0.2;
+	
+	%BrH = $StrArrayHV_Terrain[%BrPosX,%BrPosY];
+	%BrHfl = $StrArrayHV_SkyLands[%BrPosX,%BrPosY];
+	%BrH_cf = $StrArrayHV_Mountains[%BrPosX,%BrPosY];
+	%BrH_cf_aux = $StrArrayHV_MountainsAux[%BrPosX,%BrPosY];
+	//%BrH_cf = %BrH;
+	%BrH_act = %BrH_cf - $PTGm.terHLevel; //%BrHfl - $PTGm.terHLevel; //? //brh_init? //if error replace brhfl with brh_init as before
+	%BrH_Res = %BrH_cf + %BrHfl;
+	%CaveH_btm = $StrArrayHV_CavesA[%BrPosX,%BrPosY];
+	%CaveH_top = $StrArrayHV_CavesB[%BrPosX,%BrPosY];
+	%caveTerPass = !$PTGm.enabCaves || %CaveH_top == 0 || (%CaveH_top + $PTGm.brTer_Zsize) <= (%BrH_Res - $PTGm.brTer_Zsize) || %CaveH_btm > (%BrH_Res - $PTGm.brTer_Zsize);
+	%flatArPass = ($PTGm.enabBuildLoad || $PTGm.allowFlatAreas) && %layerName $= "Terrain";
+	
+	if($StrArrayHV_SkylandsAux[%BrPosX,%BrPosY] > 0)
+		%BrH_FIa_top = %BrH_build;
+	else
+		%BrH_FIa_top = ($PTGm.terHLevel + (%BrH_act - $PTGm.skyLndsSecZ)) + %BrHfl;
+	%BrH_FIa_top = mFloor(%BrH_FIa_top / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+	%BrH_FIa_btm = ($PTGm.terHLevel - ((%BrH_act - $PTGm.skyLndsSecZ) * 2)) + %BrHfl;
+	%BrH_FIa_btm = mFloor(%BrH_FIa_btm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+	
+	//////////////////////////////////////////////////
+
+	if(!%flatArPass || %buildName $= "" || ((%ChPosX_rem + %BrPosX - %BrXHhSize) >= (%relGridHSz + %xMax)) || ((%ChPosX_rem + %BrPosX + %BrXHhSize) < (%relGridHSz + %xMin))) //was this what was wrong with paths? max should be before min!
+	{
+		if(!%flatArPass || %buildName $= "" || ((%ChPosY_rem + %BrPosY - %BrXHhSize) >= (%relGridHSz + %yMax)) || ((%ChPosY_rem + %BrPosY + %BrXHhSize) < (%relGridHSz + %yMin))) // //- / + %brHalfSize_terXY
+		{
+			//Generate Detail Bricks (if terrain brick generated under or cave present)
+			if((%BrH_cf - $PTGm.terHLevel) > $PTGm.skyLndsSecZ && (%BrH_FIa_top - $PTGm.brTer_Zsize) >= (%BrH_FIa_btm + $PTGm.brTer_Zsize))
+			{
+				if(%caveTerPass) //use cave section check when actually generating caves (?)
+				{
+					%detailStr = PTG_RandNumGen_Details(((%CHPosX + %BrPosX + $PTGm.detailsOff_X + 307) * (%CHPosY + %BrPosY + $PTGm.detailsOff_Y + 839) * %BrHfl) % 100000); //10000 //%detailStr = PTG_RandNumGen_Details((%BrPosX * %BrPosY) + %BrH);
+					%detailNum = getWord(%detailStr,0);
+					%freq = getWord(%detailStr,1);
+					
+					//Detail Freq Adjust (common, uncommon and rare gen.)
+					if((%detailNum = mClamp(%detailNum,0,83)) < 72)
+					{
+						if(%detailNum < 48)
+							%detailNum = mFloor(%detailNum / 8);
+						else
+							%detailNum = mFloor(%detailNum / 4) - 6;
+					}
+					else
+						%detailNum -= 60;
+					
+					%tempH = %BrH_FIa_top;//getMax(%BrH_Res + (%BrH_act - $PTGm.skyLndsSecZ),%MinBrZSnap);
+
+					//Choose detail brick datablock, color and print
+					%detTmp = PTG_Chunk_FigureColPri_Details(%tempH,%detailNum,%BrH_cf_aux,%BrH,%BrPosX,%BrPosY,%CHPosX,%CHPosY); //%BrH_ter,%BrH_cf_aux,%BrH_init,
+					%col = getWord(%detTmp,0);
+					%pri = getWord(%detTmp,1);
+					%detailDB = getWord(%detTmp,2);
+					
+					//Terrain Detail (!!!case where terrain not generated?)
+					if(%freq <= $PTGm.detailFreq)
+					{
+						if(%detailDB !$= "" && isObject(%detailDB) && %detailDB.getclassname() $= "fxDTSBrickData")
+						{
+							switch$(%detailDB.getName())
+							{
+								//Sylvanor's Tree Support
+								case "brickTreeTop11Data" or "brickTreeTop12Data" or "brickTreeTop13aData" or "brickTreeTop13bData" or "brickTreeTop14Data" or "brickTreeTop14FatData" or "brickTreeTop15Data" or "brickTreeTop16Data" or "brickTreeTop17Data":
+									
+									%randB = (((%randA + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 64577) % 3000;
+									%randB = mFloor(%randB / 1000);
+									
+									switch(%randB)
+									{
+										case 0:
+											%detailDBb = "brickTree1Data";
+											%offtrunk = 2.5;
+											%offleaves = 5.1;
+										case 1:
+											%detailDBb = "brickTree2Data";
+											%offtrunk = 4.7;
+											%offleaves = 9.5;
+										case 2:
+											%detailDBb = "brickTree3Data";
+											%offtrunk = 1.2;
+											%offleaves = 2.5;
+										default:
+											%detailDBb = "brickTree3Data";
+											%offtrunk = 1.2;
+											%offleaves = 2.5;
+									}
+									
+									%DbrH = %tempH + %offleaves + %plateOff;
+									%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+									PTG_Chunk_PlantBrick(%detailDB,%pos,%col,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr",""); //tree leaves
+									
+									%DbrH = %tempH + %offtrunk + %plateOff;
+									%randC = (%CHPosX+%BrPosX+$PTGm.detailsOff_X+307) + (%CHPosY+%BrPosY+$PTGm.detailsOff_Y+839) + %DbrH;
+									%colTB = (((%randC + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 64577) % 3000;
+									%colTB = getWord($PTGm.TreeBaseACol SPC $PTGm.TreeBaseBCol SPC $PTGm.TreeBaseCCol,%colTB / 1000);
+									
+									%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+									PTG_Chunk_PlantBrick(%detailDBb,%pos,%colTB,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr",""); //tree base
+									
+								default:
+								
+									%brActSizeZ = %detailDB.brickSizeZ * 0.2;
+									%DbrH = %tempH + (%brActSizeZ / 2) + %plateOff;
+									%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+									%brick = PTG_Chunk_PlantBrick(%detailDB,%pos,%col,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr","");
+									
+									if(isObject(%brick) && $PTGm.autoHideSpawns && strStr(%brick.getDataBlock().getName(),"Spawn") != -1) //not necessary for Sylvanor's brick above
+									{
+										%brick.setRendering(0);
+										%brick.setColliding(0);
+									}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	//Increment Pseudo Random Detail Brick Rotation
+	if(%ang++ > 3)
+		%ang = 0;
+	
+	//////////////////////////////////////////////////
+	//Cave Details
+
+	//CaveA (Bottom) Layer Details
+	//%caveTerPass = !$PTGm.enabCaves || %CaveH_top == 0 || (%CaveH_top + $PTGm.brTer_Zsize) <= (%BrHfl - $PTGm.brTer_Zsize) || %CaveH_btm > (%BrHfl - $PTGm.brTer_Zsize); //moved to top of func
+	//%caveAdjCutPass = //add check to prevent placing details in caves if cave top and bottom layer are merged
+	
+	if((%BrH_cf - $PTGm.terHLevel) > $PTGm.skyLndsSecZ && (%BrH_FIa_top - $PTGm.brTer_Zsize) >= (%BrH_FIa_btm + $PTGm.brTer_Zsize) && %caveTerPass)
+	{
+		if(%CaveH_btm < %BrH) //???
+		{
+			%detailStr = PTG_RandNumGen_Details(((%CHPosX + %BrPosX + $PTGm.detailsOff_X + 307) * (%CHPosY + %BrPosY + $PTGm.detailsOff_Y + 839) * %CaveH_btm) % 100000); //10000
+			%detailNum = getWord(%detailStr,0);
+			%freq = getWord(%detailStr,1);
+			
+			if(%freq <= $PTGm.detailFreq)
+			{
+				//Detail Freq Adjust (common, uncommon and rare gen.)
+				if((%detailNum = mClamp(%detailNum,0,83)) < 72)
+				{
+					if(%detailNum < 48)
+						%detailNum = mFloor(%detailNum / 8);
+					else
+						%detailNum = mFloor(%detailNum / 4) - 6;
+				}
+				else
+					%detailNum -= 60;
+			
+				if(isObject(PTG_MassBioDetails_CaveBottom) && PTG_MassBioDetails_CaveBottom.totalDetAm > 0)
+				{
+					%rand = (%CHPosX+%BrPosX+$PTGm.detailsOff_X+347) + (%CHPosY+%BrPosY+$PTGm.detailsOff_Y+907) + %CaveH_btm; //change random values???
+					%detNum = (((%rand + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 77171) % (PTG_MassBioDetails_CaveBottom.totalDetAm * 100); //mFloor(%rand)
+					%detNum = mFloor(%detNum / 100);
+					%selDet = PTG_MassBioDetails_CaveBottom.detail[%detNum];
+
+					%col = getWord(%selDet,2);
+					%pri = getWord(%selDet,1);
+					%detailDBcb = getWord(%selDet,0);
+				}
+				else
+				{
+					eval("%col = stripChars($PTGbio.Bio_CaveBtm_Det" @ %detailNum @ "_Col,%str);"); //function characters are removed before evaluation, so these cmds are secure
+					eval("%pri = stripChars($PTGbio.Bio_CaveBtm_Det" @ %detailNum @ "_Pri,%str);");
+					eval("%detailDBcb = stripChars($PTGbio.Bio_CaveBtm_Det" @ %detailNum @ "_BrDB,%str);");
+				}
+				
+				//Cave Detail Bottom Layer
+				if(%detailDBcb !$= "" && isObject(%detailDBcb) && %detailDBcb.getclassname() $= "fxDTSBrickData")
+				{			
+					switch$(%detailDBcb.getName())
+					{
+						//Sylvanor's Tree Support
+						case "brickTreeTop11Data" or "brickTreeTop12Data" or "brickTreeTop13aData" or "brickTreeTop13bData" or "brickTreeTop14Data" or "brickTreeTop14FatData" or "brickTreeTop15Data" or "brickTreeTop16Data" or "brickTreeTop17Data":
+							
+							%randB = (((%randA + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 64577) % 3000;
+							%randB = mFloor(%randB / 1000);
+							
+							switch(%randB)
+							{
+								case 0:
+									%detailDBb = "brickTree1Data";
+									%offtrunk = 2.5;
+									%offleaves = 5.1;
+								case 1:
+									%detailDBb = "brickTree2Data";
+									%offtrunk = 4.7;
+									%offleaves = 9.5;
+								case 2:
+									%detailDBb = "brickTree3Data";
+									%offtrunk = 1.2;
+									%offleaves = 2.5;
+								default:
+									%detailDBb = "brickTree3Data";
+									%offtrunk = 1.2;
+									%offleaves = 2.5;
+							}
+							
+							%DbrH = %CaveH_btm + %offleaves;// + %plateOff;
+							%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+							PTG_Chunk_PlantBrick(%detailDBcb,%pos,%col,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr",""); //tree leaves
+							
+							%DbrH = %CaveH_btm + %offtrunk;// + %plateOff;
+							%randC = (%CHPosX+%BrPosX+$PTGm.detailsOff_X+307) + (%CHPosY+%BrPosY+$PTGm.detailsOff_Y+839) + %DbrH;
+							%colTB = (((%randC + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 64577) % 3000;
+							%colTB = getWord($PTGm.TreeBaseACol SPC $PTGm.TreeBaseBCol SPC $PTGm.TreeBaseCCol,%colTB / 1000);
+							
+							%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+							PTG_Chunk_PlantBrick(%detailDBb,%pos,%colTB,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr",""); //tree base
+							
+						default:
+						
+							%brActSizeZ = %detailDBcb.brickSizeZ * 0.2;
+							%DbrH = %CaveH_btm + (%brActSizeZ / 2);// + %plateOff;
+							%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+							%brick = PTG_Chunk_PlantBrick(%detailDBcb,%pos,%col,0,0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr","");
+							
+							if(isObject(%brick) && $PTGm.autoHideSpawns && strStr(%brick.getDataBlock().getName(),"Spawn") != -1) //not necessary for Sylvanor's brick above
+							{
+								%brick.setRendering(0);
+								%brick.setColliding(0);
+							}
+					}
+				}
+			}
+		}
+		
+		//Increment Pseudo Random Detail Brick Rotation
+		if(%ang++ > 3)
+			%ang = 0; //two of these in this function, check if works correctly / well enough
+		
+		 //!!! Make sure top layer details don't interfere with bottom layer details (check height on both before generating)
+		 
+		//CaveB (Top) Layer Details
+		if(%CaveH_top < %BrH) //???
+		{
+			%detailStr = PTG_RandNumGen_Details(((%CHPosX + %BrPosX + $PTGm.detailsOff_X + 307) * (%CHPosY + %BrPosY + $PTGm.detailsOff_Y + 839) * %CaveH_B) % 100000); //10000
+			%detailNum = getWord(%detailStr,0);
+			%freq = getWord(%detailStr,1);
+			
+			if(%freq <= $PTGm.detailFreq)
+			{
+				//Detail Freq Adjust (common, uncommon and rare gen.)
+				if((%detailNum = mClamp(%detailNum,0,83)) < 72)
+				{
+					if(%detailNum < 48)
+						%detailNum = mFloor(%detailNum / 8);
+					else
+						%detailNum = mFloor(%detailNum / 4) - 6;
+				}
+				else
+					%detailNum -= 60;
+
+				if(isObject(PTG_MassBioDetails_CaveTop) && PTG_MassBioDetails_CaveTop.totalDetAm > 0)
+				{
+					%rand = (%CHPosX+%BrPosX+$PTGm.detailsOff_X+347) + (%CHPosY+%BrPosY+$PTGm.detailsOff_Y+907) + %CaveH_top; //change random values???
+					%detNum = (((%rand + 10212011 + getSubStr($PTGm.seed,0,8)) % 99999) * 77171) % (PTG_MassBioDetails_CaveTop.totalDetAm * 100); //mFloor(%rand)
+					%detNum = mFloor(%detNum / 100);
+					%selDet = PTG_MassBioDetails_CaveTop.detail[%detNum];
+
+					%col = getWord(%selDet,2);
+					%pri = getWord(%selDet,1);
+					%detailDBct = getWord(%selDet,0);
+				}
+				else
+				{
+					eval("%col = stripChars($PTGbio.Bio_CaveTop_Det" @ %detailNum @ "_Col,%str);"); //function characters are removed before evaluation, so these cmds are secure
+					eval("%pri = stripChars($PTGbio.Bio_CaveTop_Det" @ %detailNum @ "_Pri,%str);");
+					eval("%detailDBct = stripChars($PTGbio.Bio_CaveTop_Det" @ %detailNum @ "_BrDB,%str);");
+				}
+
+				//Cave Detail Top Layer
+				if(%detailDBct !$= "" && isObject(%detailDBct) && %detailDBct.getclassname() $= "fxDTSBrickData")
+				{
+					%brActSizeZ = %detailDBct.brickSizeZ * 0.2;
+					%DbrH = %CaveH_top - (%brActSizeZ / 2);
+					%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %DbrH;
+					
+					%brick = PTG_Chunk_PlantBrick(%detailDBct,%pos,%col,%colFX=0,%shpFX=0,%ang,%pri,%cl,%BG,%Chunk,"DetailBr","");
+					
+					if(isObject(%brick) && $PTGm.autoHideSpawns && strStr(%brick.getDataBlock().getName(),"Spawn") != -1)
+					{
+						%brick.setRendering(0);
+						%brick.setColliding(0);
+					}
+				}
+			}
+		}
+		
+		//Increment Pseudo Random Detail Brick Rotation
+		if(%ang++ > 3)
+			%ang = 0; //two of these in this function, check if works correctly / well enough
+	}
+
+	//////////////////////////////////////////////////
+	
+	if((%BrPosX += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+	{
+		%BrPosX = $PTGm.brTer_XYsize / 2;
+		
+		if((%BrPosY += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+		{
+			PTG_Chunk_Gen_Relay(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,"FltIsldsDetails",%BG);
+			return;
+		}
+	}
+	
+	scheduleNoQuota(mClamp($PTG.delay_brGenRmvMS,0,50),0,PTG_Chunk_Gen_Details_SkyLands,%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY,%ang);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//change height value var from floating island to skyland (???)
+function PTG_Chunk_Gen_Terrain_SkyLands(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY)
+{
+	//SETUP CAVES SIMILAR TO HOW THEY WERE SETUP FOR NORMAL TERRAIN (LESS COMPLEX WITH LESS RULES - ADJUST LURD HEIGHT VALUES FOR CAVES INSTEAD)
+	
+	%BrH_FIa = $StrArrayHV_SkyLands[%BrPosX,%BrPosY];
+	%BrH_ter = $StrArrayHV_Terrain[%BrPosX,%BrPosY];
+	%BrH_init = $StrArrayHV_Mountains[%BrPosX,%BrPosY];	//make sure to start below generated terrain brick
+	%BrH_cf_aux = $StrArrayHV_MountainsAux[%BrPosX,%BrPosY];
+	%BrH_act = %BrH_init - $PTGm.terHLevel;
+	%CaveH_btm = $StrArrayHV_CavesA[%BrPosX,%BrPosY];
+	%CaveH_top = $StrArrayHV_CavesB[%BrPosX,%BrPosY];
+	%BrH_build = getWord($StrArrayData_Builds,0);
+	%layerName = getField($StrArrayData_Builds,4);
+	%flatArPass = ($PTGm.enabBuildLoad || $PTGm.allowFlatAreas) && %layerName $= "Terrain";
+	%BrZhSize = $PTGm.brTer_Zsize / 2;
+	
+	if($PTGm.enabPlateCap)
+	{
+		%relBrSz = $PTGm.brTer_XYsize * 2;
+		%BrDBp = "brick" @ %relBrSz @ "x" @ %relBrSz @ "fData";
+	}
+	
+	//////////////////////////////////////////////////
+
+	if(%BrH_act > $PTGm.skyLndsSecZ)
+	{
+		if(%flatArPass)
+		{
+			if($StrArrayHV_SkylandsAux[%BrPosX,%BrPosY] > 0)
+			{
+				%BrH_FIa_top = %BrH_build; // + $StrArrayHV_SkylandsAux[%BrPosX,%BrPosY];
+				%topGen = true;
+			}
+			if($StrArrayHV_SkylandsAux[%BrPosX-$PTGm.brTer_XYsize,%BrPosY] > 0)
+			{
+				%FI_A_Lm = %BrH_build; // + $StrArrayHV_SkylandsAux[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+				%topGen_L = true;
+			}
+			if($StrArrayHV_SkylandsAux[%BrPosX+$PTGm.brTer_XYsize,%BrPosY] > 0)
+			{
+				%FI_A_Rm = %BrH_build; // + $StrArrayHV_SkylandsAux[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+				%topGen_R = true;
+			}
+			if($StrArrayHV_SkylandsAux[%BrPosX,%BrPosY-$PTGm.brTer_XYsize] > 0)
+			{
+				%FI_A_Dm = %BrH_build; // + $StrArrayHV_SkylandsAux[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+				%topGen_D = true;
+			}
+			if($StrArrayHV_SkylandsAux[%BrPosX,%BrPosY+$PTGm.brTer_XYsize] > 0)
+			{
+				%FI_A_Um = %BrH_build; // + $StrArrayHV_SkylandsAux[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+				%topGen_U = true;
+			}
+		}
+		
+		if(!%topGen)
+			%BrH_FIa_top = ($PTGm.terHLevel + (%BrH_act - $PTGm.skyLndsSecZ)) + %BrH_FIa;
+		%BrH_FIa_top = mFloor(%BrH_FIa_top / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%BrH_FIa_btm = ($PTGm.terHLevel - ((%BrH_act - $PTGm.skyLndsSecZ) * 2)) + %BrH_FIa;
+		%BrH_FIa_btm = mFloor(%BrH_FIa_btm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		
+		%BrH_Ter_L = $StrArrayHV_Mountains[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_Ter_R = $StrArrayHV_Mountains[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_Ter_D = $StrArrayHV_Mountains[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%BrH_Ter_U = $StrArrayHV_Mountains[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		%BrH_FIa_L = $StrArrayHV_SkyLands[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_FIa_R = $StrArrayHV_SkyLands[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%BrH_FIa_D = $StrArrayHV_SkyLands[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%BrH_FIa_U = $StrArrayHV_SkyLands[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		if(!%topGen_L)
+			%FI_A_Lm = (((%BrH_Ter_L - $PTGm.skyLndsSecZ))) + %BrH_FIa_L;
+		if(!%topGen_R)
+			%FI_A_Rm = (((%BrH_Ter_R - $PTGm.skyLndsSecZ))) + %BrH_FIa_R;
+		if(!%topGen_D)
+			%FI_A_Dm = (((%BrH_Ter_D - $PTGm.skyLndsSecZ))) + %BrH_FIa_D;
+		if(!%topGen_U)
+			%FI_A_Um = (((%BrH_Ter_U - $PTGm.skyLndsSecZ))) + %BrH_FIa_U;
+		
+		//Adjacent sides (skylands top)
+		%FI_A_Lm = mFloor(%FI_A_Lm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Rm = mFloor(%FI_A_Rm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Dm = mFloor(%FI_A_Dm / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_Um = mFloor(%FI_A_Um / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		
+		if(%BrH_FIa_L <= 0) %FI_A_Lm = %BrH_FIa_top;
+		if(%BrH_FIa_R <= 0) %FI_A_Rm = %BrH_FIa_top;
+		if(%BrH_FIa_D <= 0) %FI_A_Dm = %BrH_FIa_top;
+		if(%BrH_FIa_U <= 0) %FI_A_Um = %BrH_FIa_top;
+
+		//Adjacent sides (skylands bottom)
+		%FI_A_LmB = ($PTGm.terHLevel - (((%BrH_Ter_L - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_L;
+		%FI_A_RmB = ($PTGm.terHLevel - (((%BrH_Ter_R - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_R;
+		%FI_A_DmB = ($PTGm.terHLevel - (((%BrH_Ter_D - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_D;
+		%FI_A_UmB = ($PTGm.terHLevel - (((%BrH_Ter_U - $PTGm.skyLndsSecZ) - $PTGm.terHLevel) * 2)) + %BrH_FIa_U;
+		
+		%FI_A_LmB = mFloor(%FI_A_LmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_RmB = mFloor(%FI_A_RmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_DmB = mFloor(%FI_A_DmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		%FI_A_UmB = mFloor(%FI_A_UmB / $PTGm.brTer_Zsize) * $PTGm.brTer_Zsize;
+		
+		if(%BrH_FIa_L <= 0) %FI_A_LmB = %BrH_FIa_btm;
+		if(%BrH_FIa_R <= 0) %FI_A_RmB = %BrH_FIa_btm;
+		if(%BrH_FIa_D <= 0) %FI_A_DmB = %BrH_FIa_btm;
+		if(%BrH_FIa_U <= 0) %FI_A_UmB = %BrH_FIa_btm;
+
+		//Adjacent sides (cave bottom layer)
+		%CaveH_btm_L = $StrArrayHV_CavesA[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_btm_R = $StrArrayHV_CavesA[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_btm_D = $StrArrayHV_CavesA[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%CaveH_btm_U = $StrArrayHV_CavesA[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		if(%CaveH_btm_L > %FI_A_Lm || %CaveH_btm_L <= 0) %CaveH_btm_L = %FI_A_Lm;
+		if(%CaveH_btm_R > %FI_A_Rm || %CaveH_btm_R <= 0) %CaveH_btm_R = %FI_A_Rm;
+		if(%CaveH_btm_D > %FI_A_Dm || %CaveH_btm_D <= 0) %CaveH_btm_D = %FI_A_Dm;
+		if(%CaveH_btm_U > %FI_A_Um || %CaveH_btm_U <= 0) %CaveH_btm_U = %FI_A_Um;
+		
+		//Adjacent sides (cave top layer)
+		%CaveH_top_L = $StrArrayHV_CavesB[%BrPosX-$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_top_R = $StrArrayHV_CavesB[%BrPosX+$PTGm.brTer_XYsize,%BrPosY];
+		%CaveH_top_D = $StrArrayHV_CavesB[%BrPosX,%BrPosY-$PTGm.brTer_XYsize];
+		%CaveH_top_U = $StrArrayHV_CavesB[%BrPosX,%BrPosY+$PTGm.brTer_XYsize];
+		
+		//Max / Min adjacent values for caves and skylands
+		%maxAdjCave_top = getMax(%CaveH_top_L, getMax(%CaveH_top_R, getMax(%CaveH_top_D,%CaveH_top_U)));
+		%minAdjCave_btm = getMin(%CaveH_btm_L, getMin(%CaveH_btm_R, getMin(%CaveH_btm_D,%CaveH_btm_U)));
+		%minAdjFIa_top = getMin(%FI_A_Lm, getMin(%FI_A_Rm, getMin(%FI_A_Dm,%FI_A_Um)));
+		%maxAdjFIa_btm = getMax(%FI_A_LmB, getMax(%FI_A_RmB, getMax(%FI_A_DmB,%FI_A_UmB)));
+		%adjFIaCut = %BrH_FIa_L <= 0 || %BrH_FIa_R <= 0 || %BrH_FIa_D <= 0 || %BrH_FIa_U <= 0;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		//prevent gap fill if no gap exists (check prior to subdivide func)
+		//more noCave checks below?
+		
+		if((%BrH_FIa_top - $PTGm.brTer_Zsize) >= (%BrH_FIa_btm + $PTGm.brTer_Zsize))
+		{
+			//Top layer (Terrain Brick)
+			%noCave = !$PTGm.enabCaves || %CaveH_top == 0 || %CaveH_top < %BrH_FIa_btm || %CaveH_btm > (%BrH_FIa_top - $PTGm.brTer_Zsize);
+			%caveTopPass =	(%CaveH_top + $PTGm.brTer_Zsize) <= (%BrH_FIa_top - $PTGm.brTer_Zsize); // || (%CaveH_btm) > (%BrH_FIa_top - $PTGm.brTer_Zsize);
+
+			if(%noCave || %caveTopPass) //(%noCave || %caveTerPass)
+			{
+				//Top Plate (Plate-Capping)
+				if($PTGm.enabPlateCap)
+				{
+					%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %BrH_FIa_top+0.1;
+					%tmpColPri = PTG_Chunk_FigureColPri(%BrH_ter,%BrH_cf_aux,%BrH_FIa_top,"Terrain",%BrPosX,%BrPosY);
+					PTG_Chunk_PlantBrick(%BrDBp,%pos,getWord(%tmpColPri,0),0,0,0,getWord(%tmpColPri,1),%cl,%BG,%Chunk,"TerrainBr","");
+					
+					%tmpColPri = PTG_Chunk_FigureColPri(%BrH_ter-%BrZhSize,%BrH_cf_aux-%BrZhSize,%BrH_FIa_top-%BrZhSize,"Dirt",%BrPosX,%BrPosY);
+				}
+				else
+					%tmpColPri = PTG_Chunk_FigureColPri(%BrH_ter,%BrH_cf_aux,%BrH_FIa_top,"Terrain",%BrPosX,%BrPosY);
+					
+				%pos = %CHPosX+%BrPosX SPC %CHPosY+%BrPosY SPC %BrH_FIa_top-%BrZhSize;
+			
+				if($PTGm.enabModTer)
+					PTG_Chunk_ModTer("Terrain",false,%pos,%BrPosX SPC %BrPosY,$PTGm.dirtCol,$PTGm.dirtPri,0,0,%cl,%BG,%Chunk);
+				else
+					PTG_Chunk_PlantBrick($PTGm.brTer_DB,%pos,getWord(%tmpColPri,0),0,0,0,getWord(%tmpColPri,1),%cl,%BG,%Chunk,"TerrainBr","");
+				
+				%tmpColPri = PTG_Chunk_FigureColPri(%BrH_ter-%BrZhSize,%BrH_cf_aux-%BrZhSize,%BrH_FIa_top-%BrZhSize,"Dirt",%BrPosX,%BrPosY);
+				
+				//Store highest point for chunk relative to top of each brick (for boundaries, if enabled)
+				if(isObject(%Chunk) && ((%tempZMax = %BrH_FIa_top + 16) > %Chunk.PTGHighestZpos)) //"+ 16" is to make sure rel boundary level is above brick
+					%Chunk.PTGHighestZpos = %tempZMax;
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+			//Gap-Fill
+
+//for modular terrain, change "Disabled" to approriate setting when ModTer enabled
+			
+			if((%minAdjFIa_top - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize) > (%maxAdjFIa_btm + $PTGm.brTer_FillXYZSize) && !%adjFIaCut) //if edge of skylands not cut and gap-fills don't interfere
+			{
+				//Top Gap-Fill Layer
+				%caveCutTerTop = ((%CaveH_top_L + $PTGm.brTer_Zsize) > (%FI_A_Lm - $PTGm.brTer_Zsize)) || ((%CaveH_top_R + $PTGm.brTer_Zsize) > (%FI_A_Rm - $PTGm.brTer_Zsize)) || ((%CaveH_top_D + $PTGm.brTer_Zsize) > (%FI_A_Dm - $PTGm.brTer_Zsize)) || ((%CaveH_top_U + $PTGm.brTer_Zsize) > (%FI_A_Um - $PTGm.brTer_Zsize)); //check if an adj cave top layer is > than / cuts terrain
+				%caveCutTerTopB = (%CaveH_btm_L < (%FI_A_Lm - $PTGm.brTer_Zsize)) || (%CaveH_btm_R < (%FI_A_Rm - $PTGm.brTer_Zsize)) || (%CaveH_btm_D < (%FI_A_Dm - $PTGm.brTer_Zsize)) || (%CaveH_btm_U < (%FI_A_Um - $PTGm.brTer_Zsize)); //check if an adjacent cave btm layer exists
+				%startPos = (%BrH_FIa_top - $PTGm.brTer_Zsize);
+				
+				//Top Rare Cave / Terrain Gap-Fill
+				if((%CaveH_top == 0  || (%CaveH_btm > (%BrH_FIa_top - $PTGm.brTer_Zsize))) && %caveCutTerTop && %caveCutTerTopB)
+				{
+					%endPos = (%minAdjCave_btm - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize);
+					PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "CubeFill", $PTGbio.Bio_CaveBtm_TerCol SPC 0 SPC 0 SPC 0 SPC $PTGbio.Bio_CaveBtm_TerPri,">","Disabled","TerrainBr");
+					
+					//if($PTGm.enabModTer)
+					//	PTG_Chunk_ModTer("Terrain",true,%pos,%BrPosX SPC %BrPosY,$PTGm.Bio_Def_TerCol,$PTGm.Bio_Def_TerPri,0,0,%cl,%BG,%Chunk);
+				}
+				
+				//Top Normal Terrain Gap-Fill
+				else if(%noCave || ((%maxAdjCave_top + $PTGm.brTer_Zsize + $PTGm.brTer_FillXYZSize) <= (%minAdjFIa_top - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize) && !%caveCutTerTop))
+				{
+					if(((%BrH_FIa_top - $PTGm.brTer_Zsize) > (%minAdjFIa_top + 0.1)))  //prevent unnecessary fill-bricks
+					{
+						%endPos = (%minAdjFIa_top - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize);
+						PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "CubeFill",getWord(%tmpColPri,0) SPC 0 SPC 0 SPC 0 SPC getWord(%tmpColPri,1),">","Disabled","TerrainBr");
+						
+						//if($PTGm.enabModTer)
+						//	PTG_Chunk_ModTer("Terrain",true,%pos,%BrPosX SPC %BrPosY,$PTGm.Bio_Def_TerCol,$PTGm.Bio_Def_TerPri,0,0,%cl,%BG,%Chunk);
+					}
+				}
+				
+				//////////////////////////////////////////////////
+				
+				//Bottom Gap-Fill Layer
+				%caveCutTerBtm = ((%CaveH_btm_L - $PTGm.brTer_Zsize) < %FI_A_LmB) || ((%CaveH_btm_R - $PTGm.brTer_Zsize) < %FI_A_RmB) || ((%CaveH_btm_D - $PTGm.brTer_Zsize) < %FI_A_DmB) || ((%CaveH_btm_U - $PTGm.brTer_Zsize) < %FI_A_UmB);
+				%startPos = %BrH_FIa_Btm;
+				%endPos = (%maxAdjFIa_btm + $PTGm.brTer_FillXYZSize); //no brZ size here
+
+				if(%noCave || ((%minAdjCave_btm - $PTGm.brTer_Zsize - $PTGm.brTer_FillXYZSize) >= (%maxAdjFIa_btm + $PTGm.brTer_FillXYZSize) && !%caveCutTerBtm))
+				{
+					//Make sure bottom gap-fill allows at least one fill-brick to be planted, otherwise use smaller bricks (without interfering with caves when intersecting gap-pillars)
+					if(%BrH_FIa_Btm <= %maxAdjFIa_btm)
+					{
+						PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill", $PTGm.skylandsBtmCol SPC 0 SPC 0 SPC 0 SPC $PTGm.skylandsBtmPri,"<=","Disabled","TerrainBr");
+						
+						if($PTGm.enabModTer)
+							PTG_Chunk_ModTer("Terrain",true,%pos,%BrPosX SPC %BrPosY,$PTGm.Bio_Def_TerCol,$PTGm.Bio_Def_TerPri,0,0,%cl,%BG,%Chunk);
+					}
+					else
+					{
+						PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%startPos SPC %endPos SPC "PlateFill", $PTGm.skylandsBtmCol SPC 0 SPC 0 SPC 0 SPC $PTGm.skylandsBtmPri,"<=","Disabled","TerrainBr");
+						
+						if($PTGm.enabModTer)
+							PTG_Chunk_ModTer("Terrain",true,%pos,%BrPosX SPC %BrPosY,$PTGm.Bio_Def_TerCol,$PTGm.Bio_Def_TerPri,0,0,%cl,%BG,%Chunk);
+					}
+				}						
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+			//Gap-fill between Floating Island A top and bottom layers to fill seams
+			
+			else 
+			{
+				PTG_Chunk_SubDivideFill(%cl,%Chunk,%ChPosX+%BrPosX,%ChPosY+%BrPosY,%BG,%BrH_FIa_btm SPC (%BrH_FIa_top - $PTGm.brTer_Zsize + 0.1) SPC "PlateFill", $PTGm.skylandsBtmCol SPC 0 SPC 0 SPC 0 SPC $PTGm.skylandsBtmPri,"<=","Disabled","TerrainBr");
+				
+				if($PTGm.enabModTer)
+					PTG_Chunk_ModTer("Terrain",true,%pos,%BrPosX SPC %BrPosY,$PTGm.Bio_Def_TerCol,$PTGm.Bio_Def_TerPri,0,0,%cl,%BG,%Chunk);
+			}
+		}
+	}
+	
+	//////////////////////////////////////////////////
+	
+	if((%BrPosX += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+	{
+		%BrPosX = $PTGm.brTer_XYsize / 2;
+		
+		if((%BrPosY += $PTGm.brTer_XYsize) >= mClamp($PTGm.chSize,16,256))
+		{
+			PTG_Chunk_Gen_Relay(%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,"Caves",%BG);
+			return;
+		}
+	}
+	
+	
+	$PTG.dedSrvrFuncCheckTime += (%delay = mClamp($PTG.brDelay_genMS,0,50));// + 0; //(%delay = mClamp($PTG.delay_priFuncMS,0,100));
+	scheduleNoQuota(%delay,0,PTG_Chunk_Gen_Terrain_SkyLands,%cl,%Chunk,%CHPosX,%CHPosY,%xmod,%ymod,%clNum,%BG,%BrPosX,%BrPosY);
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Client-Sided (For Previews)
+		
+
+		//adjust caves for skylands?
+		
+		//Caves
+		%CaveH_top = $StrPrevArrayHV_CavesTop[%BrPosX,%BrPosY];
+		%CaveH_btm = $StrPrevArrayHV_CavesBtm[%BrPosX,%BrPosY];
+		
+		if(PTG_Cmplx_ChkEnabCaves.getValue() && %CaveH_top > 0 && %CaveH_btm <= (%BrH_cf - %BrZSize)) //make sure this stays in sync w/ actual terrain gen - esp. once seams issue with caves is fixed
+		{
+			%col = PTG_GUI_ApplyFogDepth(PTG_Cmplx_SwBioCaveBTerCol.color,%CaveH_btm);
+			%gridStartY = getWord(PTG_Cmplx_SwPrevTopWndw_ChGrid.extent,1);
+			%startPosX = PTG_Cmplx_EdtGridXStart.getValue();
+			%startPosY = PTG_Cmplx_EdtGridYStart.getValue();
+			%sw = PTG_GUI_GenGUIObj(%ChPosX-%startPosX+%BrPosX SPC %gridStartY-(%ChPosY-%startPosY+%BrPosY)-%BrXYSize,%BrXYSize SPC %BrXYSize,%col,"Swatch");
+			
+			if((%CaveH_top + %BrZSize) > (%BrH_cf - %BrZSize))
+				PTG_Cmplx_SwPrevTopWndw_CaveA.add(%sw);
+			else
+				PTG_Cmplx_SwPrevTopWndw_CaveB.add(%sw);
+
+			//Take fill bricks into account for total brick count
+			%CaveH_top_L = $StrPrevArrayHV_CavesTop[%BrPosX-%BrXYSize,%BrPosY];
+			%CaveH_top_R = $StrPrevArrayHV_CavesTop[%BrPosX+%BrXYSize,%BrPosY];
+			%CaveH_top_D = $StrPrevArrayHV_CavesTop[%BrPosX,%BrPosY-%BrXYSize];
+			%CaveH_top_U = $StrPrevArrayHV_CavesTop[%BrPosX,%BrPosY+%BrXYSize];
+			%CaveH_btm_L = $StrPrevArrayHV_CavesBtm[%BrPosX-%BrXYSize,%BrPosY];
+			%CaveH_btm_R = $StrPrevArrayHV_CavesBtm[%BrPosX+%BrXYSize,%BrPosY];
+			%CaveH_btm_D = $StrPrevArrayHV_CavesBtm[%BrPosX,%BrPosY-%BrXYSize];
+			%CaveH_btm_U = $StrPrevArrayHV_CavesBtm[%BrPosX,%BrPosY+%BrXYSize];
+			%BrCount += 2;
+
+			if(%CaveH_top_L == 0 || %CaveH_top_R == 0 || %CaveH_top_D == 0 || %CaveH_top_U == 0)
+			{
+				%tmpBrZSize_caveTopBtm = %CaveH_top - %CaveH_btm;
+				
+				for(%c = 16; %c >= 0.25; %c /= 2)
+				{
+					%relFillZSize = mFloor(%tmpBrZSize_caveTopBtm / %c);
+					%tmpBrZSize_caveTopBtm -= (%relFillZSize * %c);
+					%BrCount += %relFillZSize;
+				}				
+			}
+			else
+			{
+				%CaveH_top_max = getMax(%CaveH_top_L,getMax(%CaveH_top_R,getMax(%CaveH_top_D,%CaveH_top_U)));					
+				%CaveH_btm_min = getMin(%CaveH_btm_L,getMin(%CaveH_btm_R,getMin(%CaveH_btm_D,%CaveH_btm_U)));
+				%tmpBrZSize_caveTop = mCeil((%CaveH_top_max - %CaveH_top + %BrXYSize) / %BrXYSize) * %BrXYSize;
+				%tmpBrZSize_caveBtm = mCeil((%CaveH_btm - %CaveH_btm_min + %BrXYSize) / %BrXYSize) * %BrXYSize;
+				
+				for(%c = 16; %c >= %BrXYSize; %c /= 2)
+				{
+					%relFillZSize_top = mFloor(%tmpBrZSize_caveTop / %c);
+					%tmpBrZSize_caveTop -= (%relFillZSize_top * %c);
+					%BrCount += %relFillZSize_top;
+					
+					%relFillZSize_btm = mFloor(%tmpBrZSize_caveBtm / %c);
+					%tmpBrZSize_caveBtm -= (%relFillZSize_btm * %c);
+					%BrCount += %relFillZSize_btm;
+				}
+			}
+		}

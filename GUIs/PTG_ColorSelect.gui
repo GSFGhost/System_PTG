@@ -1,0 +1,50 @@
+//--- OBJECT WRITE BEGIN ---
+new GuiControl(PTG_ColorSelect) {
+   profile = "GuiDefaultProfile";
+   horizSizing = "right";
+   vertSizing = "bottom";
+   position = "0 0";
+   extent = "1024 768";
+   minExtent = "8 2";
+   enabled = "1";
+   visible = "1";
+   clipToParent = "1";
+
+   new GuiWindowCtrl() {
+      profile = "GuiWindowProfile";
+      horizSizing = "center";
+      vertSizing = "center";
+      position = "376 237";
+      extent = "272 294";
+      minExtent = "8 2";
+      enabled = "1";
+      visible = "1";
+      clipToParent = "1";
+      command = "Canvas.PopDialog(PTG_ColorSelect);";
+      accelerator = "escape";
+      text = "PTG: Color Select";
+      maxLength = "255";
+      resizeWidth = "0";
+      resizeHeight = "0";
+      canMove = "1";
+      canClose = "1";
+      canMinimize = "0";
+      canMaximize = "0";
+      minSize = "50 50";
+      closeCommand = "Canvas.PopDialog(PTG_ColorSelect);";
+
+      new GuiSwatchCtrl(PTG_ColorSelect_SwPalette) {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "264 264";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         color = "233 233 233 255";
+      };
+   };
+};
+//--- OBJECT WRITE END ---

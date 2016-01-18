@@ -1,0 +1,96 @@
+//--- OBJECT WRITE BEGIN ---
+new GuiControl(PTG_DetailBrSelect) {
+   profile = "GuiDefaultProfile";
+   horizSizing = "right";
+   vertSizing = "bottom";
+   position = "0 0";
+   extent = "1024 768";
+   minExtent = "8 2";
+   enabled = "1";
+   visible = "1";
+   clipToParent = "1";
+
+   new GuiWindowCtrl() {
+      profile = "GuiWindowProfile";
+      horizSizing = "center";
+      vertSizing = "center";
+      position = "291 177";
+      extent = "442 414";
+      minExtent = "8 2";
+      enabled = "1";
+      visible = "1";
+      clipToParent = "1";
+      command = "Canvas.PopDialog(PTG_DetailBrSelect);";
+      accelerator = "escape";
+      text = "PTG: Detail Brick Selector";
+      maxLength = "255";
+      resizeWidth = "0";
+      resizeHeight = "0";
+      canMove = "1";
+      canClose = "1";
+      canMinimize = "0";
+      canMaximize = "0";
+      minSize = "50 50";
+      closeCommand = "Canvas.PopDialog(PTG_DetailBrSelect);";
+
+      new GuiSwatchCtrl(PTG_DetBrSelect_SwMainSubWndw) {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 58";
+         extent = "434 352";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         color = "255 255 255 255";
+      };
+      new GuiSwatchCtrl() {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "434 32";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         color = "0 0 0 255";
+
+         new GuiMLTextCtrl() {
+            profile = "GuiMLTextProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "4 0";
+            extent = "142 33";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            lineSpacing = "2";
+            allowColorChars = "0";
+            maxChars = "255";
+            text = "<font:impact:33><color:ffffff>Category:";
+            maxBitmapHeight = "-1";
+            selectable = "1";
+            autoResize = "1";
+         };
+         new GuiPopUpMenuCtrl(PTG_DetBrSelect_PopUpPri) {
+            profile = "PTGCustomPopUpMenuProfile";
+            horizSizing = "right";
+            vertSizing = "bottom";
+            position = "284 5";
+            extent = "134 24";
+            minExtent = "8 2";
+            enabled = "1";
+            visible = "1";
+            clipToParent = "1";
+            command = "PTG_GUI_SwitchWndw(PTG_DetBrSelect_PopUpPri.getSelected(),\"Details\");";
+            text = "Choose Category";
+            maxLength = "255";
+            maxPopupHeight = "200";
+         };
+      };
+   };
+};
+//--- OBJECT WRITE END ---

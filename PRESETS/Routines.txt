@@ -1,0 +1,60 @@
+>>Saved settings for the Complex GUI Routines window
+1.000000 0.000000 0.000000 1.000000
+0.000000 0.000000 1.000000 1.000000
+>Streams
+1
+132
+1
+0
+1
+2
+1
+0
+>Generator Limits
+10000
+500
+800
+800
+25000
+50000
+200
+0
+0
+0
+1
+>Generator Schedules
+3
+5
+0
+0
+0
+0
+0
+0
+0
+>Chunk Options
+1
+1
+1
+1
+0
+0
+1
+0
+0
+>Miscellaneous
+1
+1
+0
+0
+1
+0
+1
+1
+0
+0
+0
+1
+18
+0
+7

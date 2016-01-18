@@ -1,0 +1,92 @@
+//--- OBJECT WRITE BEGIN ---
+new GuiControl(PTG_EnlargeImg) {
+   profile = "GuiDefaultProfile";
+   horizSizing = "right";
+   vertSizing = "bottom";
+   position = "0 0";
+   extent = "1024 768";
+   minExtent = "8 2";
+   enabled = "1";
+   visible = "1";
+   clipToParent = "1";
+
+   new GuiWindowCtrl(PTG_EnlgImg_Wndw) {
+      profile = "GuiWindowProfile";
+      horizSizing = "center";
+      vertSizing = "center";
+      position = "124 113";
+      extent = "776 542";
+      minExtent = "8 2";
+      enabled = "1";
+      visible = "1";
+      clipToParent = "1";
+      command = "canvas.popDialog(PTG_EnlargeImg);";
+      accelerator = "escape";
+      maxLength = "255";
+      resizeWidth = "0";
+      resizeHeight = "0";
+      canMove = "1";
+      canClose = "1";
+      canMinimize = "0";
+      canMaximize = "0";
+      minSize = "50 50";
+      closeCommand = "canvas.popDialog(PTG_EnlargeImg);";
+
+      new GuiSwatchCtrl(PTG_EnlgImg_Sw) {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "768 512";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         color = "222 222 222 255";
+      };
+      new GuiBitmapCtrl(PTG_EnlgImg_BmpCtrl) {
+         profile = "GuiDefaultProfile";
+         horizSizing = "right";
+         vertSizing = "bottom";
+         position = "4 26";
+         extent = "768 512";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         bitmap = "./deselect";
+         wrap = "0";
+         lockAspectRatio = "1";
+         alignLeft = "0";
+         alignTop = "0";
+         overflowImage = "0";
+         keepCached = "0";
+         mColor = "255 255 255 255";
+         mMultiply = "0";
+      };
+      new GuiBitmapButtonCtrl(PTG_EnlgImg_BtnWndwResize) {
+         profile = "BlockButtonProfile";
+         horizSizing = "left";
+         vertSizing = "top";
+         position = "688 508";
+         extent = "80 24";
+         minExtent = "8 2";
+         enabled = "1";
+         visible = "1";
+         clipToParent = "1";
+         command = "PTG_GUI_ToggleWndwSize();";
+         accelerator = "enter";
+         text = "Maximize";
+         groupNum = "-1";
+         buttonType = "PushButton";
+         bitmap = "./button1b";
+         lockAspectRatio = "0";
+         alignLeft = "0";
+         alignTop = "0";
+         overflowImage = "0";
+         mKeepCached = "0";
+         mColor = "255 255 255 255";
+      };
+   };
+};
+//--- OBJECT WRITE END ---

@@ -1,0 +1,5 @@
+version	3.0.0
+channel	release
+repository	gsfghost.github.io/System_PTG/repos.txt
+format	TML
+id	3195

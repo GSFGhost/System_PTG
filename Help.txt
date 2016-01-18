@@ -1,0 +1,81 @@
+﻿Gamemode / Third Party Support
+------------------------------
+
+The function "PTG_LoadServerPreset(%fpPreset,%noFallDamage,%autoHalt,%autoClearFunc,%autoReset);" has been included so that you can load generator settings for the server if needed, via gamemode files or scripts; it will also automatically start a finite / infinite routine for you.
+This function will automatically stop and overwrite any other settings that are currently be uploaded, to prevent issues with conflicting.
+
+To use this function, first make sure the settings you want to load are saved as client-sided GUI preset. Then, copy that file from the "config/client/PTGv3/Presets/” directory to “config/server/PTGv3/ServerPresets/”; the copied file will then become what's called a server-sided preset.
+Afterwards, you can use PTG_LoadServerPreset to load settings from the server-sided preset. Note: It's not recommended to move or copy files while Blockland is running; the game may not recognize the new file.
+
+	"%fpPreset" can be replaced with the name of the server-sided preset file you wish to use (keep this blank to load default settings instead).
+	"%autoClearFunc" can be replaced with "None", "Clear", "Clear-Save", "ClearAll", "ClearAll-Save" or "Purge", to clear chunks of terrain using one of the add-on's server commands (if a routine is running it will be automatically halted); the "None" option will prevent clearing chunks.
+	"%noFallDamage" is a boolean variable that can be set to either true or false (1 or 0) to toggle disabling fall damage while terrain is being cleared (having players fall to their certain demise every time a new landscape is cleared and generated can be annoying after awhile, thus why this option is included).
+	"%autoHalt" is a boolean var that (if true) will automatically halt a finite / infinite generation routine that's currently running, or one of the clearing routines as well.
+	"%autoReset" is another boolean variable that (after preset settings are loaded) will automatically reset the first minigame that was set up, if true and if a minigame object exists.
+
+If there is a problem in which a server-sided preset freezes when using this function, and won't finish loading (thus preventing other presets from being loaded) you can enter "Restart" after %autoReset to forcibly-restart the function. For example:  PTG_LoadServerPreset("Skylands",false,false,"None",false,"Restart");
+
+
+
+
+Server Preference Variables
+---------------------------
+
+Preference vars are included, which can be enabled or disabled through the console window, or through scripts.
+"$Pref::Server::PTG::DontLoadDefault" – if set to true, won’t load default server settings for the generator. It’s not recommended to disable this feature, however; $PTG_DontLoadDef can be used instead and set to true to disable loading defaults for that game instance only, without saving the preference.
+"$Pref::Server::PTG::DontAdvertise" – if set to true, will prevent loading the PTG server message that players see when they first join your server.
+"$Pref::Server::PTG::GreaterUpldSec" – if set to true, the generator will switch to using another method (which is more secure, yet slower) for filtering out malicious code from uploaded GUI settings. This shouldn’t be necessary as the default filtering option should work perfectly, but is still included just encase.
+
+
+
+
+Dedicated Server and "PTGRmt();" Remote Console Support
+-------------------------------------------------------
+
+A function is included that will allow you to easily call certain PTG server commands and functions through the external console window, when you're hosting a dedicated server and aren't present on the server.
+The PTGRmt function is only meant to be used in the external console window for dedicated servers; it will not work if you join the dedicated server and execute the function through the internal console - opened using the tilde (~) key. In this case, the internal console would only apply to your client, not the server.
+Entering  PTGRmt(“Help”);  will give a brief description of this command.
+PTGRmt(“List”);  will list all available functions that are available.
+
+
+The PTGRmt command will also allow you to load client-sided presets on the server-side, to be automatically applied to the server remotely. You can enter  PTGRmt("Preset",%fields);  into the console to load what's known as server-sided presets. 
+Server presets are presets copied from the "config/client/PTGv3/Presets/" directory and moved to the "config/server/PTGv3/ServerPresets/" directory. Make sure to copy the GUI presets (which you would want to load remotely to the server) to the new directory. 
+Replace the "%fields" variable with: %preset TAB %noFallDamage TAB %autoHalt TAB %autoClear TAB %resetMiniGame TAB %RestartLoad.
+ 
+	"%preset" is a string variable consiting of the name of the server-sided preset you wish to load (you can enter either the file name by itself, with the extention or with the entire filepath, it doens't matter).
+		The other fields are optional, but allow you to toggle certain functions of the console command.
+	"%noFallDamage" is a boolean variable (either true or false), and toggles allowing fall damage while the landscape is being cleared.
+	"%autoHalt" is a boolean variable that toggles stoping any generating or clearing routines that are currently running.
+	"%autoClear" is a string variable that toggles clearing the landscape before generating a new one - if the landscape is already being cleared, that routine will be automatically halted. You can set this variable to either "None", "Clear", "Clear-Save", "ClearAll", "ClearAll-Save" or "Purge", which will call one of the server commands used to clear chunks.
+	"%resetMiniGame" is a boolean variable that will automatically reset the first minigame that's running, if set to true.
+	"%RestartLoad" is another boolean variable that is not really used, unless there is a problem loading a preset and you need to force-restart the function.
+
+A finite or infinite routine will automatically be started when using this function, based on the settings in the server-preset file.
+NOTE: You don't actually have to join your server to load presets to the server, start routines, etc. However, generated bricks won't have a client assigned to them if you don't, which could affect certain scripts that access the client object from a brick.
+	However, your brickgroup should be created automatically when the dedicated server is started, so that shouldn't be an issue. By default, generated bricks will be handled under public ownership, unless you disabled that option under Routines settings in the Complex GUI.
+
+
+
+
+Custom Server & GUI Defaults
+----------------------------
+
+Default generation settings are automatically loaded to the server and in your GUIs before you first spawn on your server. If desired, you can choose to set up new default settings, based on your current settings.
+One way to do this is to simply save a GUI presest with the name "Default". However, this will only apply to the settings loaded into the GUI, not to the server.
+
+Another way is to use the "/PTGSetDefault" server command, which will save your current GUI (and Routines) settings, and copy them to the appropriate directories.
+After the new defaults have been set up, they will be automatically loaded to the server and your GUI the next time you start a server. If you're joining someone else's server however, and if you have permission to open the GUIs, only the GUI defaults will be loaded.
+This server command only works if you're hosting your own server and are locally connected to it; this won't work on other player's server of if it's dedicated.
+
+
+
+
+Reducing The Server Brickcount
+------------------------------
+
+PTG can easily exceed the brick limit set for the server, but there are various ways to reduce the amount of bricks generated, based on how your landscape is set up to generate.
+Using larger or taller bricks for terrain (or the landscape features) can help tremendously. Lowering the detail frequency, raising the section cut values (under Advanced options) and reducing the grid size of the landscape can also reduce how many bricks will be generated.
+
+
+
+
