@@ -1,0 +1,4 @@
+version 2.0.0
+channel release
+repository  gsfghost.github.io/system_ptg/repository.txt
+format  TML
